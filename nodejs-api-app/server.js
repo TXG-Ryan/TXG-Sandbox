@@ -26,7 +26,7 @@ app.get('/api/status', async (req, res) => {
     const publicStatus = await checkServer('https://www.grabtalent.io/');
     const uatStatus = await checkServer('https://uat.grabtalent.ie/');
     const utilityStatus = await checkServer('https://txg-sandbox-1.onrender.com/');
-    res.json({ "Public": publicStatus, "UAT": uatStatus, "Sandbox": "utilityStatus" }); // Sandbox static for now
+    res.json({ "Public": publicStatus, "UAT": uatStatus, "Utility": utilityStatus }); // Sandbox static for now
 });
 
 // Serve index.html for root URL
