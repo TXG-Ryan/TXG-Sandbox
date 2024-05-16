@@ -1,13 +1,35 @@
-<!-- public/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Node.js API App</title>
+    <title>Status Dashboard</title>
 </head>
 <body>
-    <h1>Welcome to the Grab Talent Server Status Checker.</h1>
-    <p>API Status Endpoint: <a href="/api/status">/api/status</a></p>
+    <h1>Status Dashboard</h1>
+    <div id="status"></div>
+
+    <script>
+        const statusDiv = document.getElementById('status');
+        const ws = new WebSocket('ws://localhost:3000');
+
+        ws.onopen = () => {
+            console.log('Connected to WebSocket server');
+        };
+
+        ws.onmessage = (event) => {
+            const status = JSON.parse(event.data);
+            statusDiv.innerHTML = `
+                <p>Public: ${status.Public}</p>
+                <p>UAT: ${status.UAT}</p>
+                <p>Utility: ${status.Utility}</p>
+                <p>Staff Tools: ${status["Staff Tools"]}</p>
+            `;
+        };
+
+        ws.onclose = () => {
+            console.log('Disconnected from WebSocket server');
+        };
+    </script>
 </body>
 </html>
