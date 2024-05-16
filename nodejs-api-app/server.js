@@ -25,8 +25,13 @@ async function checkServer(url) {
 app.get('/api/status', async (req, res) => {
     const publicStatus = await checkServer('https://www.grabtalent.io/');
     const uatStatus = await checkServer('https://uat.grabtalent.ie/');
-    const utilityStatus = await checkServer('https://txg-sandbox-1.onrender.com/');
-    res.json({ "Public": publicStatus, "UAT": uatStatus, "Utility": utilityStatus }); // Sandbox static for now
+    const utilityStatus = await checkServer('https://txg-sandbox.onrender.com/');
+    const staffStatus = await checkServer('https://uat.grabtalent.ie/management/dashboard')
+    res.json({  "Public": publicStatus, 
+                "UAT": uatStatus, 
+                "Utility": utilityStatus,
+                "Staff Tools": staffStatus 
+            });
 });
 
 // Serve index.html for root URL
