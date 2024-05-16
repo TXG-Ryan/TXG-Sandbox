@@ -4,6 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Status Dashboard</title>
+    <style>
+        .status-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .online {
+            background-color: green;
+        }
+        .degraded {
+            background-color: orange;
+        }
+        .offline {
+            background-color: red;
+        }
+    </style>
 </head>
 <body>
     <h1>Status Dashboard</h1>
@@ -25,10 +47,22 @@
                 } else {
                     const status = data;
                     statusDiv.innerHTML = `
-                        <p>Public: ${status.Public}</p>
-                        <p>UAT: ${status.UAT}</p>
-                        <p>Utility: ${status.Utility}</p>
-                        <p>Staff Tools: ${status["Staff Tools"]}</p>
+                        <div class="status-container">
+                            <div class="status-indicator ${status.Public}"></div>
+                            <p>Public: ${status.Public}</p>
+                        </div>
+                        <div class="status-container">
+                            <div class="status-indicator ${status.UAT}"></div>
+                            <p>UAT: ${status.UAT}</p>
+                        </div>
+                        <div class="status-container">
+                            <div class="status-indicator ${status.Utility}"></div>
+                            <p>Utility: ${status.Utility}</p>
+                        </div>
+                        <div class="status-container">
+                            <div class="status-indicator ${status["Staff Tools"]}"></div>
+                            <p>Staff Tools: ${status["Staff Tools"]}</p>
+                        </div>
                     `;
                 }
             } catch (error) {
