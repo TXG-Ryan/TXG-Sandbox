@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Server Status Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.7.4/lottie.min.js"></script>
+    <style>
+        .server-div {
+            margin: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .online { background-color: #ddffdd; }
+        .degraded { background-color: #ffffcc; }
+        .offline { background-color: #ffdddd; }
+    </style>
+</head>
+<body>
+    <div class="link-wrapper-staff">
+        <div class="text-block-73">Server Status</div>
+        <div class="server-div" id="publicServer">
+            <h2>Public Server</h2>
+            <div>Status: <span class="status">Checking...</span></div>
+            <div class="lottie" id="publicLottie"></div>
+        </div>
+        <div class="server-div" id="uatServer">
+            <h2>UAT Server</h2>
+            <div>Status: <span class="status">Checking...</span></div>
+            <div class="lottie" id="uatLottie"></div>
+        </div>
+        <div class="server-div" id="sandboxServer">
+            <h2>Sandbox Server</h2>
+            <div>Status: <span class="status">Checking...</span></div>
+            <div class="lottie" id="sandboxLottie"></div>
+        </div>
+    </div>
+
+    <script>
+        function updateServerStatus() {
+            fetch('/api/status')
+                .then(response => response.json())
+                .then(statuses => {
+                    updateStatus('publicServer', 'publicLottie', statuses.Public);
+                    updateStatus('uatServer', 'uatLottie', statuses.UAT);
+                    updateStatus('sandboxServer', 'sandboxLottie', statuses.Sandbox);
+                })
+                .catch(error => console.error('Failed to fetch status:', error));
+        }
+
+        function updateStatus(serverId, lottieId, status) {
+            const serverDiv = document.getElementById(serverId);
+            const statusSpan = serverDiv.querySelector('.status');
+            statusSpan.textContent = status;
+
+            const animationPath = `/animations/${status.toLowerCase()}.json`;
+            const lottieContainer = document.getElementById(lottieId);
+
+            if (lottieContainer.lottieAnim) {
+                lottieContainer.lottieAnim.destroy();
+            }
+            lottieContainer.lottieAnim = lottie.loadAnimation({
+                container: lottieContainer,
+                renderer: 'svg',
+                loop: true,
+                autoplay: true,
+                path: animationPath
+            });
+        }
+
+        setInterval(updateServerStatus, 10000);
+        updateServerStatus();
+    </script>
+</body>
+</html>
