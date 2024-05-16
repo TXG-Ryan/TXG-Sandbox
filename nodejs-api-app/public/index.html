@@ -29,6 +29,15 @@
             background-color: red;
             animation: ping 1s infinite;
         }
+        .ping-fast {
+            color: rgb(0, 202, 0);
+        }
+        .ping-medium {
+            color: orange;
+        }
+        .ping-slow {
+            color: red;
+        }
         @keyframes ping {
             0% {
                 transform: scale(1);
@@ -79,17 +88,10 @@
                 } else {
                     const status = data;
 
-                    document.getElementById('publicIndicator').className = `status-indicator ${status.Public.status}`;
-                    document.getElementById('publicText').textContent = `Public: ${status.Public.status} (Ping: ${status.Public.ping} ms)`;
-
-                    document.getElementById('uatIndicator').className = `status-indicator ${status.UAT.status}`;
-                    document.getElementById('uatText').textContent = `UAT: ${status.UAT.status} (Ping: ${status.UAT.ping} ms)`;
-
-                    document.getElementById('utilityIndicator').className = `status-indicator ${status.Utility.status}`;
-                    document.getElementById('utilityText').textContent = `Utility: ${status.Utility.status} (Ping: ${status.Utility.ping} ms)`;
-
-                    document.getElementById('staffIndicator').className = `status-indicator ${status["Staff Tools"].status}`;
-                    document.getElementById('staffText').textContent = `Staff Tools: ${status["Staff Tools"].status} (Ping: ${status["Staff Tools"].ping} ms)`;
+                    updateStatus('public', status.Public);
+                    updateStatus('uat', status.UAT);
+                    updateStatus('utility', status.Utility);
+                    updateStatus('staff', status["Staff Tools"]);
                 }
             } catch (error) {
                 console.error('Error parsing JSON:', error);
@@ -99,6 +101,29 @@
         ws.onclose = () => {
             console.log('Disconnected from WebSocket server');
         };
+
+        function updateStatus(idPrefix, statusData) {
+            const indicator = document.getElementById(`${idPrefix}Indicator`);
+            const text = document.getElementById(`${idPrefix}Text`);
+            const pingClass = getPingClass(statusData.ping);
+
+            indicator.className = `status-indicator ${statusData.status}`;
+            text.innerHTML = `${capitalizeFirstLetter(idPrefix)}: ${statusData.status} <span class="${pingClass}">(Ping: ${statusData.ping} ms)</span>`;
+        }
+
+        function getPingClass(ping) {
+            if (ping < 100) {
+                return 'ping-fast';
+            } else if (ping < 300) {
+                return 'ping-medium';
+            } else {
+                return 'ping-slow';
+            }
+        }
+
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
     </script>
 </body>
 </html>
