@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status Widget</title>
+    <style>
+        .status-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .status-indicator {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+            position: relative;
+        }
+        .circle {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+        }
+        .online {
+            background-color: green;
+            animation: beat 1s infinite;
+        }
+        .degraded {
+            background-color: orange;
+            animation: beat 1s infinite;
+        }
+        .offline {
+            background-color: red;
+        }
+        @keyframes beat {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+        }
+        .ping-fast {
+            color: green;
+        }
+        .ping-medium {
+            color: orange;
+        }
+        .ping-slow {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Status Widget</h1>
+    <div id="publicStatus" class="status-container">
+        <div id="publicIndicator" class="status-indicator">
+            <div id="publicCircle" class="circle"></div>
+        </div>
+        <div>
+            <p id="publicText">Public: Loading...</p>
+            <p id="publicPing">Ping: Loading...</p>
+        </div>
+    </div>
+    <div id="uatStatus" class="status-container">
+        <div id="uatIndicator" class="status-indicator">
+            <div id="uatCircle" class="circle"></div>
+        </div>
+        <div>
+            <p id="uatText">UAT: Loading...</p>
+            <p id="uatPing">Ping: Loading...</p>
+        </div>
+    </div>
+    <div id="utilityStatus" class="status-container">
+        <div id="utilityIndicator" class="status-indicator">
+            <div id="utilityCircle" class="circle"></div>
+        </div>
+        <div>
+            <p id="utilityText">Utility: Loading...</p>
+            <p id="utilityPing">Ping: Loading...</p>
+        </div>
+    </div>
+    <div id="staffStatus" class="status-container">
+        <div id="staffIndicator" class="status-indicator">
+            <div id="staffCircle" class="circle"></div>
+        </div>
+        <div>
+            <p id="staffText">Staff Tools: Loading...</p>
+            <p id="staffPing">Ping: Loading...</p>
+        </div>
+    </div>
+
+    <script>
+        function updateStatus(idPrefix, statusData) {
+            const circle = document.getElementById(`${idPrefix}Circle`);
+            const statusText = document.getElementById(`${idPrefix}Text`);
+            const pingText = document.getElementById(`${idPrefix}Ping`);
+            const pingClass = getPingClass(statusData.ping);
+
+            circle.className = `circle ${statusData.status}`;
+            statusText.textContent = `${capitalizeFirstLetter(idPrefix)}: ${statusData.status}`;
+            animatePing(pingText, statusData.ping, pingClass);
+        }
+
+        function getPingClass(ping) {
+            if (ping < 100) {
+                return 'ping-fast';
+            } else if (ping < 300) {
+                return 'ping-medium';
+            } else {
+                return 'ping-slow';
+            }
+        }
+
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+
+        function animatePing(element, newPing, pingClass) {
+            const currentPingMatch = element.innerHTML.match(/Ping: (\d+)/);
+            const currentPing = currentPingMatch ? parseInt(currentPingMatch[1]) : 0;
+
+            const duration = 1000;
+            const startTime = performance.now();
+
+            function updatePing(timestamp) {
+                const elapsed = timestamp - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const currentDisplayedPing = Math.floor(currentPing + (newPing - currentPing) * progress);
+
+                element.innerHTML = `Ping: <span class="${pingClass}">${currentDisplayedPing} ms</span>`;
+
+                if (progress < 1) {
+                    requestAnimationFrame(updatePing);
+                }
+            }
+
+            requestAnimationFrame(updatePing);
+        }
+
+        // Fetch and update the status information
+        function fetchStatus() {
+            fetch('/api/status')
+                .then(response => response.json())
+                .then(data => {
+                    updateStatus('public', data.Public);
+                    updateStatus('uat', data.UAT);
+                    updateStatus('utility', data.Utility);
+                    updateStatus('staff', data["Staff Tools"]);
+                })
+                .catch(error => console.error('Error fetching status:', error));
+        }
+
+        // Fetch status initially and then every 10 seconds
+        fetchStatus();
+        setInterval(fetchStatus, 10000);
+    </script>
+</body>
+</html>
