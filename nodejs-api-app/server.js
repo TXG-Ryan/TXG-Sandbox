@@ -15,17 +15,20 @@ const wss = new WebSocket.Server({ server });
 // Serve static files from the 'public' directory
 app.use(express.static('public'));
 
-// Function to check server status
+// Function to check server status and measure ping
 async function checkServer(url) {
+    const start = Date.now();
     try {
         const response = await axios.get(url, { timeout: 5000 }); // Set timeout as 5 seconds
+        const ping = Date.now() - start;
         if (response.status === 200) {
-            return 'online';
+            return { status: 'online', ping };
         } else {
-            return 'degraded'; // You can refine this based on specific status codes
+            return { status: 'degraded', ping };
         }
     } catch (error) {
-        return 'offline';
+        const ping = Date.now() - start;
+        return { status: 'offline', ping };
     }
 }
 

@@ -15,24 +15,56 @@
             height: 10px;
             border-radius: 50%;
             margin-right: 10px;
+            position: relative;
         }
         .online {
             background-color: green;
+            animation: ping 1s infinite;
         }
         .degraded {
             background-color: orange;
+            animation: ping 1s infinite;
         }
         .offline {
             background-color: red;
+            animation: ping 1s infinite;
+        }
+        @keyframes ping {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            75% {
+                transform: scale(2);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(2);
+                opacity: 0;
+            }
         }
     </style>
 </head>
 <body>
     <h1>Status Dashboard</h1>
-    <div id="status"></div>
+    <div id="publicStatus" class="status-container">
+        <div id="publicIndicator" class="status-indicator"></div>
+        <p id="publicText">Public: Loading...</p>
+    </div>
+    <div id="uatStatus" class="status-container">
+        <div id="uatIndicator" class="status-indicator"></div>
+        <p id="uatText">UAT: Loading...</p>
+    </div>
+    <div id="utilityStatus" class="status-container">
+        <div id="utilityIndicator" class="status-indicator"></div>
+        <p id="utilityText">Utility: Loading...</p>
+    </div>
+    <div id="staffStatus" class="status-container">
+        <div id="staffIndicator" class="status-indicator"></div>
+        <p id="staffText">Staff Tools: Loading...</p>
+    </div>
 
     <script>
-        const statusDiv = document.getElementById('status');
         const ws = new WebSocket('ws://localhost:3000');
 
         ws.onopen = () => {
@@ -46,24 +78,18 @@
                     console.log(data.message);
                 } else {
                     const status = data;
-                    statusDiv.innerHTML = `
-                        <div class="status-container">
-                            <div class="status-indicator ${status.Public}"></div>
-                            <p>Public: ${status.Public}</p>
-                        </div>
-                        <div class="status-container">
-                            <div class="status-indicator ${status.UAT}"></div>
-                            <p>UAT: ${status.UAT}</p>
-                        </div>
-                        <div class="status-container">
-                            <div class="status-indicator ${status.Utility}"></div>
-                            <p>Utility: ${status.Utility}</p>
-                        </div>
-                        <div class="status-container">
-                            <div class="status-indicator ${status["Staff Tools"]}"></div>
-                            <p>Staff Tools: ${status["Staff Tools"]}</p>
-                        </div>
-                    `;
+
+                    document.getElementById('publicIndicator').className = `status-indicator ${status.Public.status}`;
+                    document.getElementById('publicText').textContent = `Public: ${status.Public.status} (Ping: ${status.Public.ping} ms)`;
+
+                    document.getElementById('uatIndicator').className = `status-indicator ${status.UAT.status}`;
+                    document.getElementById('uatText').textContent = `UAT: ${status.UAT.status} (Ping: ${status.UAT.ping} ms)`;
+
+                    document.getElementById('utilityIndicator').className = `status-indicator ${status.Utility.status}`;
+                    document.getElementById('utilityText').textContent = `Utility: ${status.Utility.status} (Ping: ${status.Utility.ping} ms)`;
+
+                    document.getElementById('staffIndicator').className = `status-indicator ${status["Staff Tools"].status}`;
+                    document.getElementById('staffText').textContent = `Staff Tools: ${status["Staff Tools"].status} (Ping: ${status["Staff Tools"].ping} ms)`;
                 }
             } catch (error) {
                 console.error('Error parsing JSON:', error);
