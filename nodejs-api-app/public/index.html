@@ -18,13 +18,22 @@
         };
 
         ws.onmessage = (event) => {
-            const status = JSON.parse(event.data);
-            statusDiv.innerHTML = `
-                <p>Public: ${status.Public}</p>
-                <p>UAT: ${status.UAT}</p>
-                <p>Utility: ${status.Utility}</p>
-                <p>Staff Tools: ${status["Staff Tools"]}</p>
-            `;
+            try {
+                const data = JSON.parse(event.data);
+                if (data.message) {
+                    console.log(data.message);
+                } else {
+                    const status = data;
+                    statusDiv.innerHTML = `
+                        <p>Public: ${status.Public}</p>
+                        <p>UAT: ${status.UAT}</p>
+                        <p>Utility: ${status.Utility}</p>
+                        <p>Staff Tools: ${status["Staff Tools"]}</p>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error parsing JSON:', error);
+            }
         };
 
         ws.onclose = () => {

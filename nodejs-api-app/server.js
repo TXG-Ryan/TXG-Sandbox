@@ -60,7 +60,8 @@ app.get('/', (req, res) => {
 
 // Handle WebSocket connections
 wss.on('connection', ws => {
-    ws.send('Connected to WebSocket server');
+    console.log('Client connected');
+    ws.send(JSON.stringify({ message: 'Connected to WebSocket server' }));
     // Optionally send initial status upon connection
     broadcastStatus();
 });
