@@ -51,6 +51,8 @@ async function broadcastStatus() {
             client.send(JSON.stringify(status));
         }
     });
+
+    return status; // Return the status for API endpoint
 }
 
 // Set interval to check and broadcast status every 10 seconds
@@ -59,6 +61,12 @@ setInterval(broadcastStatus, 10000);
 // Serve index.html for root URL
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// API endpoint to get the status and ping information
+app.get('/api/status', async (req, res) => {
+    const status = await broadcastStatus();
+    res.json(status);
 });
 
 // Handle WebSocket connections
