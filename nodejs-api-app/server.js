@@ -3,8 +3,13 @@ const axios = require('axios');
 const path = require('path');
 const http = require('http');
 const WebSocket = require('ws');
+const cors = require('cors');
+
 const app = express();
 const port = 3000;
+
+// Enable CORS for all routes
+app.use(cors());
 
 // Create an HTTP server
 const server = http.createServer(app);
